@@ -15,11 +15,10 @@
  */
 package ch.stefanheimberg.github.ducktype;
 
-import org.apache.commons.lang3.Validate;
-import org.apache.commons.proxy.ObjectProvider;
-import org.apache.commons.proxy.ProxyFactory;
-import org.apache.commons.proxy.invoker.DuckTypingInvoker;
-import org.apache.commons.proxy.provider.ConstantProvider;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
  *
@@ -36,12 +35,16 @@ public class DuckType {
             return duckType.cast(object);
         }
 
-        final ObjectProvider provider = new ConstantProvider(object);
-        final DuckTypingInvoker invoker = new DuckTypingInvoker(provider);
-        final ProxyFactory factory = new ProxyFactory();
-        final Object duck = factory.createInvokerProxy(invoker, new Class[]{duckType});
+        final T_DUCK duck = (T_DUCK) Proxy.newProxyInstance(duckType.getClassLoader(), new Class[]{duckType}, (Object proxy, Method method, Object[] args) -> {
+            try {
+                return object.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(object, args);
+            } catch (final NoSuchMethodException ex) {
+                throw new NoSuchMethodError(ex.getMessage());
+            } catch (final InvocationTargetException ex) {
+                throw ex.getTargetException();
+            }
+        });
 
-        Validate.notNull(duck);
         return duckType.cast(duck);
     }
 
