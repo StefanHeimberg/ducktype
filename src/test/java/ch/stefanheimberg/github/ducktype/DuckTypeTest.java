@@ -55,14 +55,14 @@ public class DuckTypeTest {
         assertSame(expected, actual);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = NoSuchMethodError.class)
     public void testCast_MethodNotImplemented() {
         final MyDuckObject1 duckObject = new MyDuckObject1();
         final MyDuck duck = DuckType.cast(duckObject, MyDuck.class);
         assertEquals(duck.duck2(), duck.duck());
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = NoSuchMethodError.class)
     public void testCast_MethodSignatureNotMatch() {
         final MyDuckObject3 duckObject = new MyDuckObject3();
         final MyDuck duck = DuckType.cast(duckObject, MyDuck.class);
